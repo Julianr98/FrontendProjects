@@ -1,0 +1,35 @@
+ 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    text-align: center;
+    text-decoration: underline;
+}
+
+h1 {
+    background-color: hsl(211, 66%, 18%);
+    color: #fff;
+}
+
+h2 {
+    background-color: hsl(211, 49%, 32%);
+    color: #fff;
+}
+
+p {
+    text-align: justify;
+}
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;

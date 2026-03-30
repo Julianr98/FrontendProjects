@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Juego del ahorcado</title>
+
+  <style>
+    :root{
+      --bg:#f6f7fb; --card:#ffffff; --text:#111827; --muted:#6b7280;
+      --border:#e5e7eb; --radius:16px; --shadow:0 10px 28px rgba(17,24,39,.10);
+      --space:16px; --space2:24px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans";
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New";
+      --focus: rgba(59,130,246,.35);
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      background:var(--bg);
+    }
+
+    header{
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: var(--space2) var(--space) var(--space);
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 12px;
+    }
+
+    h1{
+      margin:0;
+      font-size: 22px;
+      letter-spacing: .2px;
+    }
+
+    .sub{
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .wrap{
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 var(--space) var(--space2);
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding: 14px;
+    }
+
+    .row{
+      display:flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: end;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+      min-width: 160px;
+      flex: 1 1 160px;
+    }
+
+    label{
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    select, input[type="text"], textarea{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fff;
+      color: var(--text);
+      font-family: var(--font);
+    }
+
+    textarea{
+      resize:none;
+      min-height: 128px;
+      font-family: var(--mono);
+    }
+
+    input[readonly]{
+      background: #fafafa;
+    }
+
+    select:focus-visible, input:focus-visible, textarea:focus-visible, button:focus-visible{
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .help{
+      font-size: 12px;
+      color: var(--muted);
+      margin:0;
+    }
+
+    .grid{
+      margin-top: var(--space);
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: var(--space);
+    }
+
+    @media (min-width: 920px){
+      .grid{
+        grid-template-columns: 320px 1fr 240px;
+        align-items:start;
+      }
+    }
+
+    .title-sm{
+      margin:0 0 10px;
+      font-size: 14px;
+      color: var(--muted);
+      font-weight: 700;
+      letter-spacing: .2px;
+    }
+
+    .hangman{
+      width:100%;
+      aspect-ratio: 1 / 1;
+      border:1px solid var(--border);
+      border-radius: 12px;
+      background:#fff;
+      display:block;
+    }
+
+    .word-card{
+      margin-top: var(--space);
+      display:flex;
+      gap: 12px;
+      align-items:center;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    .word-left{
+      flex: 1 1 420px;
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 260px;
+    }
+
+    .wordline{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      border:1px solid var(--border);
+      background: #fff;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 700;
+      font-size: 13px;
+      white-space:nowrap;
+    }
+
+    .badge small{
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .status{
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .actions{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items:center;
+    }
+
+    .btn{
+      border:1px solid var(--border);
+      background: #fff;
+      border-radius: 12px;
+      padding: 10px 12px;
+      cursor:pointer;
+      min-height: 42px;
+      transition: transform .06s ease, box-shadow .12s ease;
+      font-weight: 700;
+    }
+
+    .btn:hover{ box-shadow: 0 6px 16px rgba(17,24,39,.08); }
+    .btn:active{ transform: translateY(1px); }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; }
+
+    .btn--primary{
+      background: #111827;
+      color: #fff;
+      border-color: #111827;
+    }
+
+    .keyboard{
+      margin-top: var(--space);
+      display:grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+    }
+
+    .key{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius: 12px;
+      padding: 10px 0;
+      cursor:pointer;
+      min-height: 42px;
+      font-family: var(--font);
+      font-weight: 700;
+      transition: transform .06s ease, box-shadow .12s ease;
+    }
+
+    .key:hover{ box-shadow: 0 6px 16px rgba(17,24,39,.08); }
+    .key:active{ transform: translateY(1px); }
+    .key:disabled{ opacity:.55; cursor:not-allowed; box-shadow:none; }
+
+    .stats{
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .stat{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+    }
+
+    .stat span{
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .stat input{
+      max-width: 96px;
+      text-align: center;
+      font-family: var(--mono);
+    }
+
+    hr{
+      border:0;
+      border-top:1px solid var(--border);
+      margin: 24px 0;
+    }
+
+    .sr-only{
+      position:absolute !important;
+      width:1px; height:1px;
+      padding:0; margin:-1px;
+      overflow:hidden; clip:rect(0,0,0,0);
+      white-space:nowrap; border:0;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div>
+    <h1>Juego del ahorcado</h1>
+    <p class="sub">Categorías, dificultad, modo 2 jugadores y 1 pista por partida.</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <form name="visor" class="game" autocomplete="off">
+    <section class="card" aria-label="Configuración">
+      <h2 class="title-sm">Configuración</h2>
+
+      <div class="row">
+        <div class="field">
+          <label for="mode">Modo</label>
+          <select id="mode" name="mode" aria-label="Modo de juego">
+            <option value="random" selected>1 jugador (aleatorio)</option>
+            <option value="two">2 jugadores (palabra secreta)</option>
+          </select>
+        </div>
+
+        <div class="field" id="categoryField">
+          <label for="category">Categoría</label>
+          <select id="category" name="category" aria-label="Categoría">
+            <option value="internet" selected>Internet</option>
+            <option value="computacion">Computación</option>
+            <option value="ofimatica">Ofimática</option>
+            <option value="mixto">Mixto</option>
+          </select>
+        </div>
+
+        <div class="field" id="difficultyField">
+          <label for="difficulty">Dificultad</label>
+          <select id="difficulty" name="difficulty" aria-label="Dificultad">
+            <option value="easy" selected>Fácil (9 intentos)</option>
+            <option value="medium">Media (8 intentos)</option>
+            <option value="hard">Difícil (7 intentos)</option>
+          </select>
+        </div>
+
+        <div class="field" id="secretField" hidden>
+          <label for="secretWord">Palabra secreta</label>
+          <input id="secretWord" name="secretWord" type="text" placeholder="Ej: telaraña / navegador / dominio" inputmode="text" autocomplete="off">
+          <p class="help">Se aceptan acentos: los normalizamos. La “ñ” se mantiene.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid" aria-label="Juego">
+      <div class="card" aria-label="Ahorcado">
+        <h2 class="title-sm">Ahorcado</h2>
+        <canvas id="hangmanCanvas" class="hangman" aria-label="Dibujo del ahorcado"></canvas>
+        <textarea name="displayHombre" class="sr-only" cols="15" rows="6" readonly></textarea>
+      </div>
+
+      <div class="card" aria-label="Letras usadas y palabra">
+        <h2 class="title-sm">Letras usadas</h2>
+        <textarea name="displayLetras" cols="15" rows="6" readonly></textarea>
+
+        <div class="word-card" aria-label="Palabra y estado">
+          <div class="word-left">
+            <div class="wordline">
+              <label class="sr-only" for="displayPalabra">Palabra</label>
+              <input id="displayPalabra" name="displayPalabra" type="text" readonly style="font-family: var(--mono); letter-spacing: 2px;">
+              <span id="attemptsBadge" class="badge" aria-label="Intentos restantes">
+                <small>Intentos</small> <span id="attemptsLeft">-</span>
+              </span>
+            </div>
+            <p id="status" class="status" role="status" aria-live="polite">
+              Pulsa <strong>Juego nuevo</strong> para empezar. Tip: puedes usar el teclado (A–Z y Ñ).
+            </p>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn btn--primary" name="Inicia" onclick="IniciaJuego(this.form)">Juego nuevo</button>
+            <button type="button" class="btn" id="hintBtn" onclick="UsarPista(this.form)" disabled>Pista (1)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card stats" aria-label="Marcador">
+        <h2 class="title-sm">Marcador</h2>
+
+        <div class="stat">
+          <span>Ganadas</span>
+          <input type="text" name="ganadas" value="0" readonly>
+        </div>
+
+        <div class="stat">
+          <span>Perdidas</span>
+          <input type="text" name="perdidas" value="0" readonly>
+        </div>
+
+        <button type="button" class="btn" name="B1"
+          onclick="this.form.ganadas.value='0'; this.form.perdidas.value='0'; SetStatus('Marcador reiniciado.');">
+          Limpiar
+        </button>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top: var(--space);" aria-label="Teclado">
+      <h2 class="title-sm">Teclado</h2>
+      <div class="keyboard">
+        <button type="button" class="key" name="botA" onclick="Juega(this.form,'a')">A</button>
+        <button type="button" class="key" name="botB" onclick="Juega(this.form,'b')">B</button>
+        <button type="button" class="key" name="botC" onclick="Juega(this.form,'c')">C</button>
+        <button type="button" class="key" name="botD" onclick="Juega(this.form,'d')">D</button>
+        <button type="button" class="key" name="botE" onclick="Juega(this.form,'e')">E</button>
+        <button type="button" class="key" name="botF" onclick="Juega(this.form,'f')">F</button>
+
+        <button type="button" class="key" name="botG" onclick="Juega(this.form,'g')">G</button>
+        <button type="button" class="key" name="botH" onclick="Juega(this.form,'h')">H</button>
+        <button type="button" class="key" name="botI" onclick="Juega(this.form,'i')">I</button>
+        <button type="button" class="key" name="botJ" onclick="Juega(this.form,'j')">J</button>
+        <button type="button" class="key" name="botK" onclick="Juega(this.form,'k')">K</button>
+        <button type="button" class="key" name="botL" onclick="Juega(this.form,'l')">L</button>
+
+        <button type="button" class="key" name="botM" onclick="Juega(this.form,'m')">M</button>
+        <button type="button" class="key" name="botN" onclick="Juega(this.form,'n')">N</button>
+        <button type="button" class="key" name="botÑ" onclick="Juega(this.form,'ñ')">Ñ</button>
+        <button type="button" class="key" name="botO" onclick="Juega(this.form,'o')">O</button>
+        <button type="button" class="key" name="botP" onclick="Juega(this.form,'p')">P</button>
+        <button type="button" class="key" name="botQ" onclick="Juega(this.form,'q')">Q</button>
+
+        <button type="button" class="key" name="botR" onclick="Juega(this.form,'r')">R</button>
+        <button type="button" class="key" name="botS" onclick="Juega(this.form,'s')">S</button>
+        <button type="button" class="key" name="botT" onclick="Juega(this.form,'t')">T</button>
+        <button type="button" class="key" name="botU" onclick="Juega(this.form,'u')">U</button>
+        <button type="button" class="key" name="botV" onclick="Juega(this.form,'v')">V</button>
+        <button type="button" class="key" name="botW" onclick="Juega(this.form,'w')">W</button>
+
+        <button type="button" class="key" name="botX" onclick="Juega(this.form,'x')">X</button>
+        <button type="button" class="key" name="botY" onclick="Juega(this.form,'y')">Y</button>
+        <button type="button" class="key" name="botZ" onclick="Juega(this.form,'z')">Z</button>
+      </div>
+      <p class="help" style="margin-top:10px;">Enter = Juego nuevo. Letras repetidas no penalizan. Pista: revela 1 letra (una vez por partida).</p>
+    </section>
+  </form>
+
+  <hr>
+  <center>
+    <h3>[<a href="javascr.htm">Volver</a>]</h3>
+  </center>
+</div>
+
+<script>
+/* ===============================
+   Datos (categorías)
+================================ */
+var palabrasPorCategoria = {
+  internet:     ["internauta","servidor","protocolo","cortafuegos","navegador","internet","dominio","hipervinculo","enlace","marcador","telaraña"],
+  computacion:  ["multimedia","nodo","marco","pagina","descargar","virtual","memoria","disco","local","conectar","desconectar","encaminador","dinamico","ordenador"],
+  ofimatica:    ["lapiz","ofimatica","informe"],
+  mixto:        [] // se llena en init
+}
+
+function initCategorias(){
+  var all = []
+  Object.keys(palabrasPorCategoria).forEach(function(k){
+    if (k === "mixto") return
+    all = all.concat(palabrasPorCategoria[k])
+  })
+  palabrasPorCategoria.mixto = all
+}
+initCategorias()
+
+/* ===============================
+   Estado del juego
+================================ */
+var palabra = []            // array de letras
+var partes = 0              // fallos actuales
+var maxFallos = 9           // según dificultad
+var jugando = false
+var letrasUsadas = null     // { letra: true }
+var pistaUsada = false
+
+/* ===============================
+   Helpers UI / Normalización
+================================ */
+function SetStatus(msg){
+  var el = document.getElementById("status")
+  if (el) el.textContent = msg || ""
+}
+
+function Normaliza(str){
+  // Mantiene ñ, elimina acentos en vocales, deja solo letras a-z y ñ
+  str = (str || "").trim().toLowerCase()
+  // proteger ñ
+  str = str.replace(/ñ/g, "__enie__")
+  // reemplazar acentos comunes
+  str = str
+    .replace(/[áàäâ]/g, "a")
+    .replace(/[éèëê]/g, "e")
+    .replace(/[íìïî]/g, "i")
+    .replace(/[óòöô]/g, "o")
+    .replace(/[úùüû]/g, "u")
+  // restaurar ñ
+  str = str.replace(/__enie__/g, "ñ")
+  // limpiar
+  str = str.replace(/[^a-zñ]/g, "")
+  return str
+}
+
+function IntentosRestantes(){
+  return Math.max(0, maxFallos - partes)
+}
+
+function ActualizaBadge(){
+  var el = document.getElementById("attemptsLeft")
+  if (el) el.textContent = IntentosRestantes() + " / " + maxFallos
+}
+
+function ToggleTeclas(visor, enabled){
+  // botones name="botA"... etc
+  for (var i=0; i<visor.elements.length; i++){
+    var el = visor.elements[i]
+    if (!el) continue
+    if ((el.tagName === "BUTTON") && el.name && el.name.indexOf("bot") === 0){
+      el.disabled = !enabled
+      if (enabled) el.classList.remove("is-used")
+    }
+  }
+}
+
+function DeshabilitaTecla(visor, letra){
+  var key = (letra || "").toUpperCase()
+  var btn = visor["bot" + key]
+  if (btn){
+    btn.disabled = true
+    btn.classList.add("is-used")
+  }
+}
+
+function SetHintEnabled(enabled){
+  var btn = document.getElementById("hintBtn")
+  if (btn) btn.disabled = !enabled
+}
+
+function SyncModoUI(){
+  var mode = document.getElementById("mode").value
+  var cat = document.getElementById("categoryField")
+  var dif = document.getElementById("difficultyField")
+  var sec = document.getElementById("secretField")
+
+  var isTwo = mode === "two"
+  if (cat) cat.hidden = isTwo
+  if (dif) dif.hidden = isTwo
+  if (sec) sec.hidden = !isTwo
+}
+
+/* ===============================
+   Canvas (ahorcado)
+================================ */
+function PrepCanvas(){
+  var c = document.getElementById("hangmanCanvas")
+  if (!c) return null
+
+  var rect = c.getBoundingClientRect()
+  var w = Math.max(240, rect.width || 280)
+  var h = Math.max(240, rect.height || 280)
+
+  var dpr = window.devicePixelRatio || 1
+  c.width  = Math.round(w * dpr)
+  c.height = Math.round(h * dpr)
+
+  var ctx = c.getContext("2d")
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+  return { ctx: ctx, w: w, h: h }
+}
+
+function Line(ctx, x1,y1,x2,y2){
+  ctx.beginPath()
+  ctx.moveTo(x1,y1)
+  ctx.lineTo(x2,y2)
+  ctx.stroke()
+}
+
+function Circle(ctx, x,y,r){
+  ctx.beginPath()
+  ctx.arc(x,y,r,0,Math.PI*2)
+  ctx.stroke()
+}
+
+function DibujaCanvas(){
+  var pack = PrepCanvas()
+  if (!pack) return
+  var ctx = pack.ctx, w = pack.w, h = pack.h
+
+  ctx.clearRect(0,0,w,h)
+  ctx.lineWidth = 4
+  ctx.lineCap = "round"
+  ctx.strokeStyle = "#111827"
+
+  // escalado: de partes (0..maxFallos) a 0..9
+  var step = Math.round((Math.min(partes, maxFallos) / maxFallos) * 9)
+
+  var pad = 18
+  var baseY = h - pad
+  var poleX = pad + 40
+  var topY  = pad + 18
+  var beamX = w - pad - 40
+
+  if (step >= 1){
+    Line(ctx, pad, baseY, w - pad, baseY)
+    Line(ctx, poleX, baseY, poleX, topY)
+    Line(ctx, poleX, topY, beamX, topY)
+  }
+  if (step >= 2){
+    Line(ctx, beamX, topY, beamX, topY + 35)
+  }
+
+  var headX = beamX
+  var headY = topY + 55
+  var r = 18
+
+  if (step >= 3) Circle(ctx, headX, headY, r)
+  if (step >= 4) Line(ctx, headX, headY + r, headX, headY + 85)
+  if (step >= 5) Line(ctx, headX, headY + 45, headX - 30, headY + 65)
+  if (step >= 6) Line(ctx, headX, headY + 45, headX + 30, headY + 65)
+  if (step >= 7) Line(ctx, headX, headY + 85, headX - 26, headY + 120)
+  if (step >= 8) Line(ctx, headX, headY + 85, headX + 26, headY + 120)
+  if (step >= 9){
+    Line(ctx, headX - 7, headY - 6, headX - 2, headY - 1)
+    Line(ctx, headX + 7, headY - 6, headX + 2, headY - 1)
+    Line(ctx, headX - 7, headY + 8, headX + 7, headY + 8)
+  }
+}
+
+/* ===============================
+   Core game
+================================ */
+function ElegirPalabraAleatoria(visor){
+  var cat = visor.category.value
+  var lista = palabrasPorCategoria[cat] || palabrasPorCategoria.mixto
+  var i = Math.floor(Math.random() * lista.length)
+  return lista[i]
+}
+
+function DibujaPalabraInicial(visor){
+  var out = ""
+  for (var i=0; i<palabra.length; i++) out += "_ "
+  visor.displayPalabra.value = out
+}
+
+function NuevaLetra(visor, letra){
+  visor.displayLetras.value += letra.toUpperCase() + " "
+}
+
+function DibujaLetra(visor, letra){
+  var actual = (visor.displayPalabra.value || "").trim()
+  var arr = actual ? actual.split(/\s+/) : []
+  var acierto = false
+
+  var out = ""
+  for (var i=0; i<palabra.length; i++){
+    if (palabra[i] === letra){
+      out += letra + " "
+      acierto = true
+    } else {
+      out += (arr[i] || "_") + " "
+    }
+  }
+  visor.displayPalabra.value = out
+  return acierto
+}
+
+function CompruebaPalabra(visor){
+  var actual = (visor.displayPalabra.value || "").trim()
+  if (!actual) return false
+  return actual.indexOf("_") === -1
+}
+
+function FinJuego(ganaste){
+  jugando = false
+  ToggleTeclas(document.visor, false)
+  SetHintEnabled(false)
+  DibujaCanvas()
+  ActualizaBadge()
+
+  if (ganaste){
+    document.visor.ganadas.value = (parseInt(document.visor.ganadas.value, 10) || 0) + 1
+    SetStatus("¡Ganaste! Pulsa “Juego nuevo” para jugar otra vez.")
+    alert("¡Acertaste!")
+    return
+  }
+
+  var sol = palabra.join("")
+  document.visor.perdidas.value = (parseInt(document.visor.perdidas.value, 10) || 0) + 1
+  SetStatus("Perdiste. La palabra era: " + sol + ". Pulsa “Juego nuevo” para intentarlo de nuevo.")
+  alert("Has muerto!\nLa palabra era: " + sol)
+}
+
+function IniciaJuego(visor){
+  SyncModoUI()
+
+  letrasUsadas = {}
+  pistaUsada = false
+  partes = 0
+
+  var mode = visor.mode.value
+  var seleccion = ""
+
+  if (mode === "two"){
+    seleccion = Normaliza(visor.secretWord.value)
+    if (!seleccion){
+      SetStatus("En modo 2 jugadores debes escribir una palabra secreta (sin espacios).")
+      return
+    }
+  } else {
+    seleccion = ElegirPalabraAleatoria(visor)
+  }
+
+  // dificultad
+  var dif = (visor.difficulty && visor.difficulty.value) ? visor.difficulty.value : "easy"
+  maxFallos = (dif === "hard") ? 7 : (dif === "medium" ? 8 : 9)
+
+  palabra = Normaliza(seleccion).split("")
+  if (!palabra.length){
+    SetStatus("No se pudo iniciar: palabra inválida.")
+    return
+  }
+
+  jugando = true
+  visor.displayLetras.value = ""
+  DibujaPalabraInicial(visor)
+
+  ToggleTeclas(visor, true)
+  SetHintEnabled(true)
+  document.getElementById("hintBtn").textContent = "Pista (1)"
+
+  DibujaCanvas()
+  ActualizaBadge()
+
+  SetStatus("Partida nueva: te quedan " + IntentosRestantes() + " intentos. Usa botones o teclado.")
+}
+
+function Juega(visor, letra){
+  if (!jugando){
+    SetStatus("Pulsa “Juego nuevo” para comenzar.")
+    return
+  }
+
+  letra = Normaliza(letra)
+  if (!letra) return
+  // solo 1 char
+  letra = letra[0]
+
+  if (letrasUsadas[letra]){
+    SetStatus("Esa letra ya la usaste: '" + letra.toUpperCase() + "'. Te quedan " + IntentosRestantes() + " intentos.")
+    return
+  }
+
+  letrasUsadas[letra] = true
+  DeshabilitaTecla(visor, letra)
+  NuevaLetra(visor, letra)
+
+  var acierto = DibujaLetra(visor, letra)
+
+  if (!acierto){
+    partes++
+    DibujaCanvas()
+    ActualizaBadge()
+    SetStatus("Fallaste con '" + letra.toUpperCase() + "'. Te quedan " + IntentosRestantes() + " intentos.")
+    if (partes >= maxFallos) FinJuego(false)
+    return
+  }
+
+  DibujaCanvas()
+  ActualizaBadge()
+  SetStatus("¡Bien! '" + letra.toUpperCase() + "' está en la palabra. Te quedan " + IntentosRestantes() + " intentos.")
+
+  if (CompruebaPalabra(visor)) FinJuego(true)
+}
+
+/* ===============================
+   Pista (1 por partida)
+================================ */
+function UsarPista(visor){
+  if (!jugando){
+    SetStatus("Pulsa “Juego nuevo” para comenzar.")
+    return
+  }
+  if (pistaUsada){
+    SetStatus("Ya usaste tu pista en esta partida.")
+    return
+  }
+
+  var actual = (visor.displayPalabra.value || "").trim()
+  var arr = actual ? actual.split(/\s+/) : []
+  var candidatos = []
+
+  for (var i=0; i<palabra.length; i++){
+    if (arr[i] === "_" || !arr[i]){
+      var l = palabra[i]
+      if (!letrasUsadas[l]) candidatos.push(l)
+    }
+  }
+
+  if (!candidatos.length){
+    SetStatus("No hay letras para revelar (¡ya casi la tienes!).")
+    return
+  }
+
+  var pick = candidatos[Math.floor(Math.random() * candidatos.length)]
+  pistaUsada = true
+  document.getElementById("hintBtn").textContent = "Pista (0)"
+  SetHintEnabled(false)
+
+  // usar letra como si fuera jugada (sin penalizar)
+  letrasUsadas[pick] = true
+  DeshabilitaTecla(visor, pick)
+  NuevaLetra(visor, pick)
+  DibujaLetra(visor, pick)
+  SetStatus("Pista usada: se reveló '" + pick.toUpperCase() + "'. Te quedan " + IntentosRestantes() + " intentos.")
+
+  if (CompruebaPalabra(visor)) FinJuego(true)
+}
+
+/* ===============================
+   Teclado + init
+================================ */
+window.addEventListener("load", function(){
+  var visor = document.visor
+  if (!visor) return
+
+  SyncModoUI()
+  ToggleTeclas(visor, false)
+  SetHintEnabled(false)
+  ActualizaBadge()
+  DibujaCanvas()
+
+  document.getElementById("mode").addEventListener("change", function(){
+    SyncModoUI()
+    // si cambian a 2 jugadores, no rompas la partida: solo avisa
+    SetStatus("Modo cambiado. Pulsa “Juego nuevo” para iniciar con la nueva configuración.")
+  })
+
+  document.addEventListener("keydown", function(e){
+    var t = e.target
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT")) return
+    if (e.ctrlKey || e.metaKey || e.altKey) return
+
+    var key = (e.key || "").toLowerCase()
+    if (key === "enter"){ IniciaJuego(visor); return }
+
+    var allowed = "abcdefghijklmnñopqrstuvwxyz"
+    if (allowed.indexOf(key) !== -1) Juega(visor, key)
+  })
+
+  window.addEventListener("resize", function(){
+    DibujaCanvas()
+  })
+})
+</script>
+</body>
+</html>
