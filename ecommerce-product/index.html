@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="visaewport" content="width=device-width, initial-scale=1.0"> <!--muestra el sitio correctamente según el dispositivo del usuario-->
+  <title>E-commerce product page</title>
+  <link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<main class="main-container">
+  <!--medida de pagina web inicio-->
+  <header class="header">
+    <div class="header__navegations" >
+    <img class="header__menu" src="./images/icon-menu.svg" alt="menu-icon">
+    <img class="header__logo" src="./images/logo.svg" alt="logo">
+
+    <nav class="navbar">
+      <ul class="navbar__items">
+        <li><a class="navbar__link" href="#">Colecciones</a></li>
+        <li><a class="navbar__link" href="#">sobre nosotros</a></li>
+        <li><a class="navbar__link" href="#">Contacto</a></li>
+        <li><a class="navbar__link" href="#">Registrar</a></li>
+      </ul>
+    </nav>
+
+  </div>
+  
+    <!--medida de pagina web fin--> 
+
+
+    <!--modal navbar medida de telefono inicio-->
+    <div class="modal-navbar__background">
+      <nav class="modal-navbar">
+        <img class="modal-navbar__close-icon" src="./images/icon-close.svg" alt="">
+        <ul class="modal-navbar__items">
+          <li><a class="navbar__link" href="#">Colecciones</a></li>
+        <li><a class="navbar__link" href="#">sobre nosotros</a></li>
+        <li><a class="navbar__link" href="#">Contacto</a></li>
+        <li><a class="navbar__link" href="#">Registrar</a></li>
+        </ul>
+      </nav>
+    </div>
+    <!--modal navbar medida de telefono fin-->
+
+
+    <div class="header__cart-avatar"> 
+      <div class="header__cart">
+        <div class="header__cart--notification">0</div>
+        <img class="header__cart" src="./images/icon-cart.svg" alt="">
+      </div>
+      <img  class="header__avatar" src="./images/image-avatar.png" alt="">
+
+    </div>
+  </header>
+
+  <section class="content">
+
+    <article class="gallery">
+      <div class="gallery__image-container">
+        <img class="gallery__previus" src="./images/icon-previous.svg" alt="">
+        <img class="gallery__next" src="./images/icon-next.svg" alt="">
+      </div>
+      <div class="gallery__thumnails">
+        <img id="1" class="gallery__thumnail" src="./images/dutty1.jpg" alt="thumnail">
+        <img id="2" class="gallery__thumnail" src="./images/dutty6.webp" alt="thumnail">
+        <img id="3" class="gallery__thumnail" src="./images/dutty3.jpg" alt="thumnail">
+        <img id="4" class="gallery__thumnail" src="./images/dutty4.jpg" alt="thumnail">
+      </div>
+    </article>
+
+    <article class="details">
+      <h2 class="details__conpany">Call of Duty</h2>
+      <h2 class="details__title" >Lo que tienes que saber de este producto</h2>
+      <p class="details__description">
+
+        Combinando realidad con ficción, Call of Duty es un juego único por su calidad de desarrollo. Su objetivo es que cada jugador logre conquistar todas las misiones, ya sea en una batalla contra otros ejércitos o combatiendo zombies. Sus gráficos, jugabilidad, desafíos e historias han hecho de la franquicia una de las más destacadas dentro de los videojuegos en primera persona.
+
+      </p>
+        <div class="details__prices">
+          <p class="details__now">$90000<span class="details__discount" >50%</span></p>
+          <p class="details__before">$180000</p>
+        </div>
+        <div class="details__product-quantity">
+          <div class="input">
+            <img class="input__minus" src="./images/icon-minus.svg" alt="minus">
+            <input class="input__number" type="text" value="0">
+            <img class="input__plus" src="./images/icon-plus.svg" alt="plus">
+          </div>
+          <button class="details__button"><img src="./images/icon-cart.svg" alt="">Agregar al carrito</button>
+        </div>
+    </article>
+  </section>
+
+  <!--Inicio cart modal telefono-->
+  <div class="cart-modal">
+    <p class="cart-modal__title">cart</p>
+    <div class="cart-modal__checkout-container">
+      <div class="cart-modal__details-container">
+        <img  class="cart-modal__image" src="./images/image-product-1-thumbnail.jpg" alt="">
+        <div>
+          <p class="cart-modal__product">autum limited edition...</p>
+          <p class="cart-modal__price">125 x3 <span>375.00</span></p>
+        </div>
+        <img class="cart-modal__delete" src="./images/icon-delete.svg" alt="delete">
+      </div>
+      <button class="cart-modal__checkout">Checkout</button>
+
+    </div>
+  </div>
+  <!--fin cart modal telefono-->
+
+  <!--Inicio gallery modal web-->
+  <div class="modal-gallery__background">
+  <article class="modal-gallery">
+
+    <div class="modal-gallery__close-container">
+      <img  class="modal-gallery__close" src="./images/icon-close-orange.svg" alt="icon close">
+    </div>
+    
+    <div class="modal-gallery__image-container">
+      <img class="modal-gallery__previus" src="./images/icon-previous.svg" alt="">
+      <img class="modal-gallery__next" src="./images/icon-next.svg" alt="">
+    </div>
+   
+    <div class="modal-gallery__thumnails">
+      <img id="m1" class="modal-gallery__thumnail" src="./images/dutty1.jpg" alt="thumnail">
+      <img id="m2" class="modal-gallery__thumnail" src="./images/dutty6.webp" alt="thumnail">
+      <img id="m3" class="modal-gallery__thumnail" src="./images/dutty3.jpg" alt="thumnail">
+      <img id="m4" class="modal-gallery__thumnail" src="./images/dutty4.jpg" alt="thumnail">
+    </div>
+  </article>
+  </div>
+  <!--fin gallery modal web-->
+</main>
+ 
+<footer>
+   <p>Coded by <a href="#">Jorge Luis Mendoza Mejia</a></p>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

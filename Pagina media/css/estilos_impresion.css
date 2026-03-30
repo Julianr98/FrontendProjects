@@ -1,0 +1,21 @@
+body {
+    font-family: 'Times New Roman', Times, serif;
+    margin-top: 1em;
+}
+
+h1 {
+    font-size: 1cm;
+}
+
+nav {
+    position: static;
+    background-color: #fff;
+}
+
+nav a {
+    color: #222;
+}
+
+.solo-pantalla {
+    display: none;
+}
